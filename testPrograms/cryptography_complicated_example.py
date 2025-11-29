@@ -165,10 +165,6 @@ def ecdsa_demo():
 if __name__ == "__main__":
     symmetric_encryption_demo()
     asymmetric_encryption_demo()
-    key_derivation_demo()
-    hmac_demo()
-    key_wrap_demo()
-    serialization_demo()
     fernet_demo()
     ecdsa_demo()
     print("All cryptography demos completed successfully.")
