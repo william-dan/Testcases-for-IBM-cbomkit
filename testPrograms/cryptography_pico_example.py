@@ -1,35 +1,31 @@
-from cryptography.fernet import Fernet
+import os, base64, json, importlib
 
-#!/usr/bin/env python3
-"""
-Minimal example using the `cryptography` library (Fernet symmetric encryption).
-Save as /home/daz/dynamic-cbom/testPrograms/cryptography_pico_example.py
-Requires: pip install cryptography
-"""
+def tiny_crypto(msg: bytes) -> bytes:
+    # Example (but unknown to a static analyzer at analysis time):
+    cfg = {
+      "m":  "cryptography.hazmat.primitives.ciphers",
+      "c":  "Cipher",
+      "am": "algorithms",
+      "a":  "AES",
+      "mm": "modes",
+      "md": "GCM",
+      "kl": 32,
+      "iv": 12
+    }
 
+    m = importlib.import_module(cfg["m"])
+    Cipher = getattr(m, cfg["c"])
+    alg_cls = getattr(getattr(m, cfg["am"]), cfg["a"])
+    mode_cls = getattr(getattr(m, cfg["mm"]), cfg["md"])
 
+    key = os.urandom(cfg["kl"])
+    iv  = os.urandom(cfg["iv"])
 
-def generate_key():
-    return Fernet.generate_key()
-
-
-def encrypt(key: bytes, plaintext: bytes) -> bytes:
-    f = Fernet(key)
-    return f.encrypt(plaintext)
-
-
-def decrypt(key: bytes, token: bytes) -> bytes:
-    f = Fernet(key)
-    return f.decrypt(token)
-
+    encryptor = Cipher(alg_cls(key), mode_cls(iv)).encryptor()
+    return encryptor.update(msg) + encryptor.finalize()
 
 if __name__ == "__main__":
-    key = generate_key()
-    print("Key:", key.decode())
-
-    message = b"hello, cryptography!"
-    token = encrypt(key, message)
-    print("Encrypted token:", token)
-
-    recovered = decrypt(key, token)
-    print("Decrypted message:", recovered.decode())
+    secret = b"Top secret message!"
+    ciphertext = tiny_crypto(secret)
+    print("Ciphertext:", ciphertext)
+    
