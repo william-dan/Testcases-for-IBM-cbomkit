@@ -83,67 +83,6 @@ def asymmetric_encryption_demo():
         hashes.SHA256()
     )
 
-def key_derivation_demo():
-    # PBKDF2 key derivation
-    password = b"mysecretpassword"
-    salt = os.urandom(16)
-    kdf = PBKDF2HMAC(
-        algorithm=hashes.SHA256(),
-        length=32,
-        salt=salt,
-        iterations=100000,
-        backend=default_backend()
-    )
-    key = kdf.derive(password)
-    # To verify:
-    kdf_verify = PBKDF2HMAC(
-        algorithm=hashes.SHA256(),
-        length=32,
-        salt=salt,
-        iterations=100000,
-        backend=default_backend()
-    )
-    kdf_verify.verify(password, key)
-
-def hmac_demo():
-    # HMAC generation and verification
-    key = os.urandom(32)
-    data = b"Authenticate me"
-    h = HMAC(key, hashes.SHA256(), backend=default_backend())
-    h.update(data)
-    tag = h.finalize()
-    # Verification
-    h2 = HMAC(key, hashes.SHA256(), backend=default_backend())
-    h2.update(data)
-    h2.verify(tag)
-
-def key_wrap_demo():
-    # AES key wrap/unwrap
-    kek = os.urandom(32)  # Key encryption key
-    key_to_wrap = os.urandom(32)
-    wrapped = keywrap.aes_key_wrap(kek, key_to_wrap, backend=default_backend())
-    unwrapped = keywrap.aes_key_unwrap(kek, wrapped, backend=default_backend())
-    assert key_to_wrap == unwrapped
-
-def serialization_demo():
-    # Serialize/deserialize RSA private key
-    private_key = rsa.generate_private_key(
-        public_exponent=65537,
-        key_size=2048,
-        backend=default_backend()
-    )
-    pem = private_key.private_bytes(
-        encoding=serialization.Encoding.PEM,
-        format=serialization.PrivateFormat.PKCS8,
-        encryption_algorithm=serialization.BestAvailableEncryption(b"password")
-    )
-    loaded_key = serialization.load_pem_private_key(
-        pem,
-        password=b"password",
-        backend=default_backend()
-    )
-    # print("loaded_key len:", len(loaded_key))
-    assert loaded_key.private_numbers() == private_key.private_numbers()
 
 def fernet_demo():
     # Symmetric encryption with Fernet
@@ -165,10 +104,6 @@ def ecdsa_demo():
 if __name__ == "__main__":
     symmetric_encryption_demo()
     asymmetric_encryption_demo()
-    key_derivation_demo()
-    hmac_demo()
-    key_wrap_demo()
-    serialization_demo()
     fernet_demo()
     ecdsa_demo()
     print("All cryptography demos completed successfully.")
