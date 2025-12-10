@@ -165,7 +165,7 @@ if __name__ == "__main__":
     fernet_demo()
     
     # AES-CBC example
-    key_256 = os.urandom(16)  # AES-128
+    key_256 = os.urandom(32)
     plaintext = b"Hello, World!"
     iv, ciphertext = aes_cbc_encrypt(key_256, plaintext)
     decrypted = aes_cbc_decrypt(key_256, iv, ciphertext)
